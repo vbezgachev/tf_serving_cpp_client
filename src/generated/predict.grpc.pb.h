@@ -6,6 +6,7 @@
 
 #include "predict.pb.h"
 
+#include <grpcpp/impl/codegen/async_generic_service.h>
 #include <grpcpp/impl/codegen/async_stream.h>
 #include <grpcpp/impl/codegen/async_unary_call.h>
 #include <grpcpp/impl/codegen/method_handler_impl.h>

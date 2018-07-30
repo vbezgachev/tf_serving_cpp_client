@@ -1,6 +1,16 @@
+HOST_SYSTEM = $(shell uname | cut -f 1 -d_)
+SYSTEM ?= $(HOST_SYSTEM)
 CC      = g++
-CFLAGS  =-c -Wall -std=gnu++11
-LDFLAGS =-lprotobuf -lgrpc++
+CFLAGS  = -c -Wall -std=c++11 `pkg-config --cflags protobuf grpc`
+ifeq ($(SYSTEM),Darwin)
+LDFLAGS = -L/usr/local/lib `pkg-config --libs protobuf grpc++ grpc`\
+          -lgrpc++_reflection\
+          -ldl
+else
+LDFLAGS = -L/usr/local/lib `pkg-config --libs protobuf grpc++ grpc`\
+		  -Wl,--no-as-needed -lgrpc++_reflection -Wl,--as-needed\
+		  -ldl
+endif
 EXECUTABLE_NAME=serving_client
 
 BIN         =./bin
@@ -23,7 +33,7 @@ clean:
 $(EXECUTABLE_FILES): $(OBJECT_FILES)
 	@echo Linking $<
 	@mkdir -p $(@D)
-	@$(CC) $(LDFLAGS) -v -o $@ $^
+	@$(CC) $^ $(LDFLAGS) -o $@
 	@echo "Build successful!"
 
 $(OBJECT_FILES): $(OBJ)/%.o: %.cc
