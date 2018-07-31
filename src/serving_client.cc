@@ -75,7 +75,7 @@ class ServingClient {
 
     proto.mutable_tensor_shape()->add_dim()->set_size(1);
 
-    inputs["images"] = proto;
+    inputs["examples"] = proto;
 
     Status status = stub_->Predict(&context, predictRequest, &response);
 
@@ -89,7 +89,22 @@ class ServingClient {
       int output_index = 0;
 
       for (iter = map_outputs.begin(); iter != map_outputs.end(); ++iter) {
-        // tensorflow::TensorProto& result_tensor_proto = iter->second;
+        tensorflow::TensorProto& result_tensor_proto = iter->second;
+        std::cout << "float val size is " << result_tensor_proto.float_val_size() << std::endl;
+
+        int maxIdx = -1;
+        float maxVal = -1;
+        for (int i = 0; i < result_tensor_proto.float_val_size(); ++i) {
+          float val = result_tensor_proto.float_val(i);
+          std::cout << "float value " << i << " is " << val << std::endl;
+
+          if (maxVal < val) {
+            maxVal = val;
+            maxIdx = i;
+          }
+        }
+
+        std::cout << "best float value is at index " << maxIdx << " and equal to " << maxVal << std::endl;
 
         // tensorflow::Tensor tensor;
         // bool converted = tensor.FromProto(result_tensor_proto);
@@ -118,9 +133,9 @@ class ServingClient {
 
 int main(int argc, char** argv) {
   std::string server_port = "172.17.0.2:9000";
-  std::string image_file = "";
-  std::string model_name = "gan";
-  std::string model_signature_name = "predict_images";
+  std::string image_file = "./resources/Afghan_hound_00116.jpg";
+  std::string model_name = "dog_breed";
+  std::string model_signature_name = "serving_default";
 
   ServingClient guide(
       grpc::CreateChannel(server_port, grpc::InsecureChannelCredentials()));
