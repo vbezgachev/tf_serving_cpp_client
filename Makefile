@@ -3,7 +3,7 @@ SYSTEM ?= $(HOST_SYSTEM)
 CC      = g++
 CFLAGS  = -c -Wall -std=c++11 `pkg-config --cflags protobuf grpc`
 ifeq ($(SYSTEM),Darwin)
-LDFLAGS = -L/usr/local/lib `pkg-config --libs protobuf grpc++ grpc`\
+LDFLAGS = -L/usr/local/lib -lpthread -lprotobuf -lgrpc++ -lgrpc\
           -lgrpc++_reflection\
           -ldl
 else
